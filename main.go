@@ -4,16 +4,17 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/google/go-github/v43/github"
 	"golang.org/x/oauth2"
 )
 
 func main() {
-	// Use 4 command line arguments: owner, repo, token, issue title and label
-	if len(os.Args) != 6 {
+	// Use 4 command line arguments: owner, repo, token, issue ,title, label and body
+	if len(os.Args) != 7 {
 		fmt.Println(len(os.Args))
-		panic("Usage: main.go owner repo token title and label")
+		panic("Usage: main.go owner repo token title label and body")
 	}
 	// parse command line arguments
 	owner := os.Args[1]
@@ -21,6 +22,8 @@ func main() {
 	token := os.Args[3]
 	title := os.Args[4]
 	label := os.Args[5]
+	body := os.Args[6]
+	labels := strings.Split(label, ",")
 	// validate command line arguments
 	if owner == "" || repo == "" || token == "" || title == "" || label == "" {
 		panic("Usage: main.go owner repo token title and label")
@@ -35,10 +38,9 @@ func main() {
 	var issue *github.Issue
 	var err error
 	issue, _, err = client.Issues.Create(ctx, owner, repo, &github.IssueRequest{
-		Title: github.String(title),
-		Labels: &[]string{
-			label,
-		},
+		Title:  github.String(title),
+		Body:   github.String(body),
+		Labels: &labels,
 	})
 	if err != nil {
 		panic(err)
